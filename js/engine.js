@@ -14,48 +14,57 @@
  * a little simpler to work with.
  */
 
+ /* Udayan: This is an Immediately Invoked Function Expression (IFFE,
+ pronounced “iffy”). It encloses all the code that runs the game,
+ to prevent them from polluting the global scope.
+ (I don't understand what that means, except maybe this prevents
+ the script for this game from conflicting with any other script
+ running on the same web page.) */
 var Engine = (function(global) {
     /* Predefine the variables we'll be using within this scope,
      * create the canvas element, grab the 2D context for that canvas
      * set the canvas elements height/width and add it to the DOM.
-     */
+     The lastTime variable refers to the last time the scene in the game was rendered. */
     var doc = global.document,
         win = global.window,
         canvas = doc.createElement('canvas'),
         ctx = canvas.getContext('2d'),
         lastTime;
-
+    /* This sets the canvas' width and height, and adds the canvas inside the body tags when the index file loads in the browser. */
     canvas.width = 505;
-    canvas.height = 606;
+    canvas.height = 650;
     doc.body.appendChild(canvas);
 
-    /* This function serves as the kickoff point for the game loop itself
-     * and handles properly calling the update and render methods.
-     */
+    /* This is how the game runs. The scene is continuously
+    updated and rendered, creating the illusion of animation. */
     function main() {
         /* Get our time delta information which is required if your game
          * requires smooth animation. Because everyone's computer processes
          * instructions at different speeds we need a constant value that
          * would be the same for everyone (regardless of how fast their
-         * computer is) - hurray time!
-         */
+         * computer is) - hurray time! */
+        /* James Long: “Your game will run wildly different on various
+        computers and platforms, so you need to update the scene
+        independently of frame rate. This is achieved by calculating
+        the time since last update (in seconds) and expressing all
+        movements in pixels per second. Movement then becomes
+        x += 50 * dt, or 50 pixels per second.” */
         var now = Date.now(),
             dt = (now - lastTime) / 1000.0;
 
         /* Call our update/render functions, pass along the time delta to
-         * our update function since it may be used for smooth animation.
-         */
+         * our update function since it may be used for smooth animation. */
         update(dt);
         render();
 
-        /* Set our lastTime variable which is used to determine the time delta
-         * for the next time this function is called.
-         */
+        /* The lastTime variable was used to calculate the time since
+        the last update of the scene. Here, it is reset to now,
+        preparing it for the next update. */
         lastTime = now;
 
-        /* Use the browser's requestAnimationFrame function to call this
-         * function again as soon as the browser is able to draw another frame.
-         */
+        /* Uses the browser's requestAnimationFrame function to call this
+         * function again as soon as the browser is able to draw another frame. Thus, an infinite loop is created
+        that keeps the game running until the user stops it. */
         win.requestAnimationFrame(main);
     }
 
@@ -76,8 +85,7 @@ var Engine = (function(global) {
      * the need to add an additional function call here. For now, we've left
      * it commented out - you may or may not want to implement this
      * functionality this way (you could just implement collision detection
-     * on the entities themselves within your app.js file).
-     */
+     * on the entities themselves within your app.js file). */
     function update(dt) {
         updateEntities(dt);
         // checkCollisions();
@@ -95,6 +103,7 @@ var Engine = (function(global) {
             enemy.update(dt);
         });
         player.update();
+        star.update();
     }
 
     /* This function initially draws the "game level", it will then call
@@ -110,9 +119,9 @@ var Engine = (function(global) {
         var rowImages = [
                 'images/water-block.png',   // Top row is water
                 'images/stone-block.png',   // Row 1 of 3 of stone
+                'images/grass-block.png',   // Row 1 of 2 of grass
                 'images/stone-block.png',   // Row 2 of 3 of stone
                 'images/stone-block.png',   // Row 3 of 3 of stone
-                'images/grass-block.png',   // Row 1 of 2 of grass
                 'images/grass-block.png'    // Row 2 of 2 of grass
             ],
             numRows = 6,
@@ -150,8 +159,8 @@ var Engine = (function(global) {
         allEnemies.forEach(function(enemy) {
             enemy.render();
         });
-
         player.render();
+        star.render();
     }
 
     /* This function does nothing but it could have been a good place to
@@ -171,7 +180,12 @@ var Engine = (function(global) {
         'images/water-block.png',
         'images/grass-block.png',
         'images/enemy-bug.png',
-        'images/char-boy.png'
+        'images/Star.png',
+        'images/char-boy.png',
+        'images/char-cat-girl.png',
+        'images/char-horn-girl.png',
+        'images/char-pink-girl.png',
+        'images/char-princess-girl.png'
     ]);
     Resources.onReady(init);
 
